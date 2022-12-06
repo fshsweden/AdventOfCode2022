@@ -19,11 +19,11 @@ def execute_instructions(instructions, stacks, num_columns):
         for n in range(num_columns):
             print_stack(n)
 
-        for n in range(numboxes):
-            box = stacks[from_stack].pop()
-            print("Popping ",box," from stack",from_stack+1)
-            stacks[to_stack].append(box)
-            print("Appended ",box," to stack",to_stack+1)
+        boxes = stacks[from_stack][-numboxes:]
+        del stacks[from_stack][-numboxes:]
+        print("Popping ",numboxes, boxes," from stack",from_stack)
+        stacks[to_stack] = stacks[to_stack] + boxes
+        print("Appended ",boxes," to stack",to_stack)
         
         print("After instruction " + str(cmds))
         for n in range(num_columns):
@@ -88,7 +88,8 @@ def solve():
     execute_instructions(instructions, stacks, NUM_COLUMNS)
 
 
-solve_test()
+#solve_test()
+solve()
 
 print("Answer:", end='')
 for s in stacks:
