@@ -17,9 +17,3 @@ for x in range(len(line)):
         if is_14_diff(chunk):
             print(x, chunk, f" Answer is {x+14}")
             break
-
-# test cases
-# print(is_4_diff("abcd"))
-# print(is_4_diff(""))
-# print(is_4_diff(" "))
-# print(is_4_diff("abca"))
