@@ -127,12 +127,12 @@ for line in lines:
         # this is a data line
         d.add_dir_or_file(args[0], args[1])        
 
-# print("------------------------------------------")
-# root.print(0)
-#
-#for dz in root.get_dir_sizes():
-#   print(dz)
+print("------------------------------------------")
+root.print(0)
 
+for dz in root.get_dir_sizes():
+   print(dz)
+   
 result = list(filter(lambda x: x[0] != "root" and x[1] <= 100000, root.get_dir_sizes()))
 result = list(map(lambda x: x[1], result))
 print(f"dirs with size < 100000: {result}")
