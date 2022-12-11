@@ -1,61 +1,23 @@
-with open('test-input-11.txt') as f:
-    lines = [row.strip() for row in f]
+class Item:
+    def __init__(self, worry_level) -> None:
+        self.worry_level = int(worry_level)
 
+    def __str__(self) -> str:
+        return f"Item WL:{self.worry_level}"
 
-class MonkeyController:
-    def monkey_work(m):
-        global monkeys
+    def __repr__(self) -> str:
+        return f"Item WL:{self.worry_level}"
 
-        monkey = monkeys[m]
-        print(f"Monkey {m} starting with {monkey['starting_items']}")
+    def getWorryLevel(self):
+        return self.worry_level
 
-        for item in monkey["starting_items"]:
+    def setWorryLevel(self, worry_level):
+        self.worry_level = worry_level
 
-            item = int(item)
-
-            if monkey["operation"] == "*":
-                if monkey["factor"] == "old":
-                    worry_level = item * item
-                else:
-                    worry_level = item * int(monkey["factor"])
-            elif monkey["operation"] == "+":
-                if monkey["factor"] == "old":
-                    worry_level = item + item
-                else:
-                    worry_level = item + int(monkey["factor"])
-
-            print(f"worry_level is {worry_level} for item {item} and factor {monkey['factor']}")
-            worry_level = worry_level // 3
-            print(f"worry_level is {worry_level} after // 3")
-
-            divis = monkey["divisableby"]
-
-            if worry_level % monkey["divisableby"] == 0:
-                print(f"Divisible by {divis}! passing {item} to {monkey['iftruemonkey']}")
-                target_monkey = int(monkey["iftruemonkey"])
-                catch(target_monkey, item)
-            else:
-                print(f"Not divisable by {divis}! passing {item} to {monkey['iffalsemonkey']}")
-                target_monkey = int(monkey["iffalsemonkey"])
-                catch(target_monkey, item)
-
-            # remove items from starting_items
-            monkey["starting_items"] = []
 
 class Monkey:
-    def __init__(self, id, 
-        items, 
-        operation, 
-        test, 
-        iftrue, 
-        iffalse) -> None:
-
-        self.id = id
-        self.items = items
-        self.operation = operation
-        self.test = test
-        self.iftrue = iftrue
-        self.iffalse = iffalse
+    def __init__(self) -> None:
+        self.inspections = 0
 
     def __str__(self) -> str:
         return f"Monkey {self.id} has {self.starting_items}"
@@ -68,6 +30,15 @@ class Monkey:
 
     def setId(self, id):
         self.id = id
+
+    def countInspection(self):
+        self.inspections += 1
+
+    def getInspections(self):
+        return self.inspections
+
+    def catch(self, item):
+        self.items.append(item)
 
     def getItems(self):
         return self.items
@@ -88,6 +59,8 @@ class Monkey:
         self.test = test
 
     def getFactor(self):
+        if self.factor == "old":
+            return self.factor
         return self.factor
 
     def setFactor(self, factor):
@@ -103,110 +76,147 @@ class Monkey:
         return self.iftrue
 
     def setIftruemonkey(self, iftruemonkey):
-        self.iftrue = iftruemonkey
+        self.iftrue = int(iftruemonkey)
 
     def getIffalsemonkey(self):
         return self.iffalse
 
     def setIffalsemonkey(self, iffalsemonkey):
-        self.iffalse = iffalsemonkey
+        self.iffalse = int(iffalsemonkey)
 
 
-class Item:
-    def __init__(self, worry_level) -> None:
-        self.worry_level = worry_level
+class MonkeyController:
 
-    def __str__(self) -> str:
-        return f"Item with worry level {self.worry_level}"
+    def __init__(self) -> None:
+        self.monkeys = {}
+        self.load_monkeys()
 
-    def __repr__(self) -> str:
-        return f"Item with worry level {self.worry_level}"
+    def load_monkeys(self):
 
-    def get_worry_level(self):
-        return self.worry_level
-
-    def set_worry_level(self, worry_level):
-        self.worry_level = worry_level
-
-
-
-
-
-
-def get_monkey_dicionary(lines):
-
-    monkeys = {}
-
-    done = False
-    lineno = 0  
-
-    while lineno <= len(lines):
-    
-        monkey = Monkey()
-
-        idline = lines[lineno].split(" ")
-        id = idline[1].strip(":")
+        with open('input-11.txt') as f:
+            lines = [row.strip() for row in f]
         
-        monkey.setId(int(id))
+        lineno = 0  
 
-        starting_items = lines[lineno+1].strip().split(":")[1]
-        starting_items = starting_items.replace(" ", "")
-        starting_items = starting_items.split(",")
-        starting_items = [ int(s) for s in starting_items]
+        while lineno <= len(lines):
+        
+            monkey = Monkey()
 
-        monkey.setItems(starting_items)
-
-        # monkey["operation_line"] = lines[lineno+2].split(":")[1].strip()
-
-        factor = monkey["operation_line"].split(" ")[4]
-        operation = monkey["operation_line"].split(" ")[3]
-        if operation not in ["+", "*"]:
-            raise "ERROR: operation not + or *"
+            idline = lines[lineno].split(" ")
+            id = idline[1].strip(":")
             
-        monkey.setOperation(operation)
-        monkey.setFactor(factor)
+            monkey.setId(int(id))
 
-        test = lines[lineno+3].split(":")[1]
-        monkey.setTest(test)
+            starting_items = lines[lineno+1].strip().split(":")[1]
+            starting_items = starting_items.replace(" ", "")
+            starting_items = starting_items.split(",")
+            starting_items = [ Item(s) for s in starting_items]
 
-        divisableby = int(monkey["test"].split(" ")[3])
-        monkey.setDivisableby(divisableby)
+            monkey.setItems(starting_items)
 
-        iftrue = lines[lineno+4].split(":")[1]
-        iftruemonkey = (monkey["iftrue"].split(" ")[4])
-        monkey.setIftruemonkey(iftruemonkey)
+            operation_line = lines[lineno+2].split(":")[1].strip()
+            factor = operation_line.split(" ")[4]
+            operation = operation_line.split(" ")[3]
 
-        iffalse = lines[lineno+5].split(":")[1]
-        iffalsemonkey = int(monkey["iffalse"].split(" ")[4])
-        monkey.setIffalsemonkey(iffalsemonkey)
+            if operation not in ["+", "*"]:
+                raise "ERROR: operation not + or *"
+                
+            monkey.setOperation(operation)
+            monkey.setFactor(factor)
 
-        lineno += 7
-        
-        monkey.print()
+            test = lines[lineno+3].split(":")[1]
+            monkey.setTest(test)
 
-        monkeys[monkey["id"]] = monkey
-    return monkeys
+            divisableby = int(test.split(" ")[3])
+            monkey.setDivisableby(divisableby)
 
-def catch(m, item):
-    global monkeys
-    monkeys[m]["starting_items"].append(item)
+            iftrue = lines[lineno+4].split(":")[1]
+            iftruemonkey = iftrue.split(" ")[4]
+            monkey.setIftruemonkey(iftruemonkey)
 
-def print_monkeys(round, monkeys):
-    print(f"-- BEGIN {round} -------------------------------------")
-    for monkey_index in monkeys:
-        monkey = monkeys[monkey_index]
-        print(f"Monkey {monkey['id']} has {monkey['starting_items']}")
-    print(f"-- END {round} -------------------------------------")
+            iffalse = lines[lineno+5].split(":")[1]
+            iffalsemonkey = iffalse.split(" ")[4]
+            monkey.setIffalsemonkey(iffalsemonkey)
 
+            lineno += 7
+            
+            # monkey.print()
 
-monkeys = get_monkey_dicionary(lines)
-
-m = 0
+            self.monkeys[monkey.getId()] = monkey
 
 
-print_monkeys(-1, monkeys)
-for round in range(0,1):
-    print(f"******************** Round {round}")
-    for m in monkeys:
-        monkey_work(m)
-        print_monkeys(m, monkeys)
+    def doRound(self):
+
+        for m in self.monkeys:
+            monkey = self.monkeys[m]
+
+            print(f"Monkey {m} starting with {monkey.getItems()}")
+
+            for item in monkey.getItems():
+
+                print(f"Monkey {m} inspects item with WL: {item.getWorryLevel()}")
+                monkey.countInspection()
+
+                if monkey.getOperation() == "*":
+                    old_worry_level = item.getWorryLevel()
+                    if monkey.getFactor() == "old":
+                        new_worry_level = item.getWorryLevel() * item.getWorryLevel()
+                        print(f"WL is multiplied by {old_worry_level} to {new_worry_level}")
+                    else:
+                        new_worry_level = item.getWorryLevel() * int(monkey.getFactor())
+                        print(f"WL is multiplied by {old_worry_level} to {new_worry_level}")
+
+                elif monkey.getOperation() == "+":
+                    if monkey.getFactor() == "old":
+                        new_worry_level = item.getWorryLevel() + item.getWorryLevel()
+                        print(f"WL is increased by {old_worry_level} to {new_worry_level}")
+                    else:
+                        new_worry_level = item.getWorryLevel() + int(monkey.getFactor())
+                        print(f"WL is increased by {int(monkey.getFactor())} to {new_worry_level}")
+                else:
+                    raise "ERROR: operation not + or *"
+
+                new_worry_level = new_worry_level // 3
+                print(f"WL is divided by 3 to {new_worry_level}")
+                item.setWorryLevel(new_worry_level)
+
+                if new_worry_level % monkey.getDivisableby() == 0:
+                    print(f"Current worry level is divisible by {monkey.getDivisableby()}!")
+                    print(f"Item with worry level {item.getWorryLevel()} is thrown to {monkey.getIftruemonkey()}")
+                    target_monkey = self.monkeys[monkey.getIftruemonkey()]
+                    target_monkey.catch(item)
+                else:
+                    print(f"Current worry level is NOT divisible by {monkey.getDivisableby()}!")
+                    print(f"Item with worry level {item.getWorryLevel()} is thrown to {monkey.getIffalsemonkey()}")
+                    target_monkey = self.monkeys[monkey.getIffalsemonkey()]
+                    target_monkey.catch(item)
+
+                # remove items from starting_items
+                monkey.setItems([])
+
+    def print_monkeys(self):
+        print(f"-- BEGIN -------------------------------------")
+        for monkey_index in self.monkeys:
+            monkey = self.monkeys[monkey_index]
+            print(f"Monkey {monkey.getId()} has {monkey.getItems()}")
+        print(f"-- END   -------------------------------------")
+
+    def print_monkey_inspections(self):
+        print(f"-- BEGIN -------------------------------------")
+        for monkey_index in self.monkeys:
+            monkey = self.monkeys[monkey_index]
+            print(f"Monkey {monkey.getId()} inspected items {monkey.getInspections()} times")
+        print(f"-- END   -------------------------------------")
+
+def main():
+    mc = MonkeyController()
+    mc.load_monkeys()
+    mc.print_monkeys()
+    for round in range(20):
+        mc.doRound()
+    mc.print_monkeys()
+    mc.print_monkey_inspections()
+
+if __name__ == "__main__":
+    main()
+
