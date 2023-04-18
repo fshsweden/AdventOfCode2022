@@ -16,7 +16,8 @@ Also whether a parent dir < 100000 should be included in the result as well as t
 children in it. I do not know if this is a bug in the quiz or not.
 
 """
-with open('test-input-7.txt') as f:
+#with open('test-input-7.txt') as f:
+with open('input-david.txt') as f:
     lines = f.readlines()
 
 
